@@ -1,3 +1,5 @@
+"""Interface Tkinter para manipular e visualizar cubos NxN."""
+
 import tkinter as tk
 import random
 from tkinter import messagebox
@@ -5,7 +7,10 @@ from cubo import Cubo
 
 
 class CuboGUI:
+    """Janela interativa para movimentos, scrambles e visualização do cubo."""
+
     def __init__(self, master, n):
+        """Cria a interface e inicializa um cubo de dimensão ``n``."""
         self.master = master
         self.master.title(f"Cubo Mágico {n}x{n}")
         self.master.minsize(400, 400)
@@ -64,7 +69,7 @@ class CuboGUI:
         self.embaralhar()
 
     def embaralhar(self):
-        """Gera um scramble pseudo-aleatório direto, evitando movimentos redundantes e cancelamentos."""
+        """Gera um scramble pseudo-aleatório e atualiza o cubo e o desenho."""
         movimentos_gerados = []
         # Eixos opostos controlados
         eixos = [('U', 'D'), ('F', 'B'), ('L', 'R')]
@@ -97,6 +102,7 @@ class CuboGUI:
         self.desenhar_cubo()
 
     def executar_sequencia(self):
+        """Executa os movimentos separados por espaços introduzidos na caixa."""
         sequencia = self.entry_movimentos.get().strip()
         if not sequencia: return
 
@@ -106,6 +112,7 @@ class CuboGUI:
         self.entry_movimentos.delete(0, tk.END)
 
     def mover(self, movimento):
+        """Aplica um movimento e mostra uma notificação se o cubo ficar resolvido."""
         self.cubo.aplicar_comando(movimento)
         self.desenhar_cubo()
 
@@ -113,7 +120,7 @@ class CuboGUI:
             messagebox.showinfo("Cubo Resolvido", f"Parabéns! O cubo {self.N}x{self.N} está resolvido.")
 
     def ao_redimensionar(self, event):
-        """Calcula o novo tamanho e recria o canvas em caso de alteração das dimensões."""
+        """Ajusta o tamanho das casas e redesenha o canvas após redimensionar."""
         self.canvas_width = event.width
         self.canvas_height = event.height
 
@@ -128,6 +135,7 @@ class CuboGUI:
         self.desenhar_cubo()
 
     def desenhar_face(self, face_nome, offset_x, offset_y):
+        """Desenha ou atualiza os quadrados da face nas coordenadas indicadas."""
         matriz = self.cubo.faces[face_nome]
         for l in range(self.N):
             for c in range(self.N):
@@ -147,6 +155,7 @@ class CuboGUI:
                     self.retangulos_ids[tag] = rect_id
 
     def desenhar_cubo(self):
+        """Dispõe as seis faces em cruz e atualiza a representação no canvas."""
         tf = self.tam_face
         largura_total_desenho = tf * 4
         altura_total_desenho = tf * 3

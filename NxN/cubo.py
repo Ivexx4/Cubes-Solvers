@@ -1,7 +1,12 @@
+"""Modelo matricial e operações de movimento para cubos de dimensão N."""
+
 import numpy as np
 
 class Cubo:
+    """Representa um cubo NxN com uma matriz NumPy por face."""
+
     def __init__(self, n=3):
+        """Cria um cubo de dimensão ``n`` no estado resolvido."""
         self.N = n
         # Representação matricial eficiente com NumPy (agora com inteiros)
         self.faces = {
@@ -13,16 +18,19 @@ class Cubo:
             'R': np.full((n, n), 5, dtype=int)
         }
     def resolvido(self):
+        """Indica se cada face contém apenas uma cor."""
         for matriz in self.faces.values():
             if not np.all(matriz == matriz[0, 0]):
                 return False
         return True
 
     def _girar_matriz(self, face_nome):
+        """Roda a matriz de uma face no sentido horário."""
         # A rotação por defeito no NumPy é no sentido anti-horário; usamos k=-1 para horário
         self.faces[face_nome] = np.rot90(self.faces[face_nome], k=-1)
 
     def _rodar_camada_especifica(self, face, vezes, d):
+        """Aplica rotações de 90 graus à camada ``d`` contada a partir da face."""
         N = self.N
         opostos = {'U': 'D', 'D': 'U', 'F': 'B', 'B': 'F', 'R': 'L', 'L': 'R'}
 
@@ -79,11 +87,20 @@ class Cubo:
                 self.faces['F'][:, d] = temp
 
     def movimento(self, face, vezes=1, profundidade=1):
+        """Roda uma face ou várias camadas, repetindo o quarto de volta pedido.
+
+        ``vezes`` é 1 para horário, 2 para meia-volta e 3 para anti-horário.
+        """
         profundidade = min(profundidade, self.N)
         for d in range(profundidade):
             self._rodar_camada_especifica(face, vezes, d)
 
     def aplicar_comando(self, comando):
+        """Interpreta e executa um movimento, por exemplo ``R``, ``U'`` ou ``3Fw2``.
+
+        Um sufixo ``w`` indica um movimento wide; o número inicial define a
+        profundidade da camada. O comando vazio não altera o cubo.
+        """
         if not comando: return
 
         vezes = 1

@@ -1,3 +1,5 @@
+"""Resolução de cubos 2x2 através de pesquisa bidirecional em largura."""
+
 import sys
 import os
 from collections import deque
@@ -11,7 +13,10 @@ from cubo import Cubo
 
 
 class Solver2x2:
+    """Resolve um estado 2x2 usando movimentos U, R e F após normalização."""
+
     def __init__(self, cubo_inicial):
+        """Inicializa o solver e prepara transições, inversos e movimentos."""
         if cubo_inicial.N != 2:
             raise ValueError("Este solver suporta apenas a versão 2x2.")
         self.cubo_inicial = cubo_inicial
@@ -38,13 +43,13 @@ class Solver2x2:
         }
 
     def _estado_para_bytes(self, cubo):
-        """Serialização ultrarrápida do estado atual."""
+        """Serializa as seis faces para identificar estados sem ambiguidades."""
         f = cubo.faces
         return (f['U'].tobytes() + f['D'].tobytes() + f['F'].tobytes() +
                 f['B'].tobytes() + f['L'].tobytes() + f['R'].tobytes())
 
     def _clonar_cubo(self, cubo_origem):
-        """Clone direto de arrays NumPy."""
+        """Cria uma cópia independente do cubo e dos seus arrays NumPy."""
         novo_cubo = Cubo(2)
         for face, matriz in cubo_origem.faces.items():
             novo_cubo.faces[face] = matriz.copy()
@@ -52,8 +57,10 @@ class Solver2x2:
 
     def _orientar_cubo(self, cubo):
         """
-        Encontra a rotação do cubo (usando movimentos wide) que coloca
-        o canto DBL (cores: D=1, B=3, L=4) na sua posição e orientação fixas.
+        Coloca o canto DBL (D=1, B=3, L=4) na orientação de referência.
+
+        Returns:
+            Tuplo com o cubo orientado e os movimentos wide aplicados.
         """
         q = deque([(self._clonar_cubo(cubo), [])])
         visitados = {self._estado_para_bytes(cubo)}
@@ -81,8 +88,14 @@ class Solver2x2:
 
     def _transpor_solucao(self, solucao_normalizada, rotacoes):
         """
-        Traduz os movimentos da solução de volta para o referencial
-        do scramble original, eliminando as rotações do cubo.
+        Converte uma solução do referencial normalizado para o original.
+
+        Args:
+            solucao_normalizada: Movimentos encontrados pela pesquisa.
+            rotacoes: Rotações wide usadas para normalizar o cubo.
+
+        Returns:
+            Lista de movimentos equivalente no referencial original.
         """
         mapa = {'U': 'U', 'D': 'D', 'F': 'F', 'B': 'B', 'L': 'L', 'R': 'R'}
 
@@ -111,6 +124,7 @@ class Solver2x2:
         return solucao_final
 
     def resolver(self):
+        """Devolve uma solução em movimentos ou ``None`` se não for encontrada."""
         if self.cubo_inicial.resolvido():
             return []
 
