@@ -16,7 +16,7 @@ class Solver2x2:
             raise ValueError("Este solver suporta apenas a versão 2x2.")
         self.cubo_inicial = cubo_inicial
 
-        # OTIMIZAÇÃO: Acesso direto
+        # OTIMIZAÇÃO: Acesso direto apenas a U, R, F (fixando DBL)
         todos = ['U', "U'", 'U2', 'R', "R'", 'R2', 'F', "F'", 'F2']
         self.transicoes_validas = {
             None: todos,
@@ -44,39 +44,94 @@ class Solver2x2:
                 f['B'].tobytes() + f['L'].tobytes() + f['R'].tobytes())
 
     def _clonar_cubo(self, cubo_origem):
-        """
-        No BFS precisamos de manter estados em memória.
-        Clonar diretamente os arrays NumPy é ordens de grandeza
-        mais rápido do que usar o módulo copy (deepcopy).
-        """
+        """Clone direto de arrays NumPy."""
         novo_cubo = Cubo(2)
         for face, matriz in cubo_origem.faces.items():
             novo_cubo.faces[face] = matriz.copy()
         return novo_cubo
 
+    def _orientar_cubo(self, cubo):
+        """
+        Encontra a rotação do cubo (usando movimentos wide) que coloca
+        o canto DBL (cores: D=1, B=3, L=4) na sua posição e orientação fixas.
+        """
+        q = deque([(self._clonar_cubo(cubo), [])])
+        visitados = {self._estado_para_bytes(cubo)}
+
+        rotacoes = ['Uw', "Uw'", 'Uw2', 'Rw', "Rw'", 'Rw2', 'Fw', "Fw'", 'Fw2']
+
+        while q:
+            c_atual, caminho = q.popleft()
+
+            if (c_atual.faces['D'][1, 0] == 1 and
+                    c_atual.faces['B'][1, 1] == 3 and
+                    c_atual.faces['L'][1, 0] == 4):
+                return c_atual, caminho
+
+            for rot in rotacoes:
+                c_novo = self._clonar_cubo(c_atual)
+                c_novo.aplicar_comando(rot)
+                est = self._estado_para_bytes(c_novo)
+
+                if est not in visitados:
+                    visitados.add(est)
+                    q.append((c_novo, caminho + [rot]))
+
+        return cubo, []
+
+    def _transpor_solucao(self, solucao_normalizada, rotacoes):
+        """
+        Traduz os movimentos da solução de volta para o referencial
+        do scramble original, eliminando as rotações do cubo.
+        """
+        mapa = {'U': 'U', 'D': 'D', 'F': 'F', 'B': 'B', 'L': 'L', 'R': 'R'}
+
+        for rot in rotacoes:
+            eixo = rot[0]
+            vezes = 1
+            if "'" in rot:
+                vezes = 3
+            elif "2" in rot:
+                vezes = 2
+
+            for _ in range(vezes):
+                if eixo == 'U':
+                    mapa['F'], mapa['L'], mapa['B'], mapa['R'] = mapa['R'], mapa['F'], mapa['L'], mapa['B']
+                elif eixo == 'R':
+                    mapa['U'], mapa['B'], mapa['D'], mapa['F'] = mapa['F'], mapa['U'], mapa['B'], mapa['D']
+                elif eixo == 'F':
+                    mapa['U'], mapa['R'], mapa['D'], mapa['L'] = mapa['L'], mapa['U'], mapa['R'], mapa['D']
+
+        solucao_final = []
+        for mov in solucao_normalizada:
+            face = mov[0]
+            modificador = mov[1:] if len(mov) > 1 else ""
+            solucao_final.append(mapa[face] + modificador)
+
+        return solucao_final
+
     def resolver(self):
         if self.cubo_inicial.resolvido():
             return []
 
+        # 1. Normalizar a orientação do cubo (Fixar o canto DBL)
+        cubo_normalizado, rotacoes_iniciais = self._orientar_cubo(self.cubo_inicial)
+
         # Instanciar o estado alvo (Cubo resolvido)
         cubo_alvo = Cubo(2)
 
-        # Filas para expansão: guardam tuplos (Estado_Cubo, Caminho)
-        q_ida = deque([(self._clonar_cubo(self.cubo_inicial), [])])
+        # 2. Iniciar o BFS com o cubo já orientado corretamente
+        q_ida = deque([(cubo_normalizado, [])])
         q_volta = deque([(cubo_alvo, [])])
 
-        # Tabelas de Transposição (Visitados)
-        # Mapeamento: { estado_em_bytes: caminho_para_chegar_lá }
-        visitados_ida = {self._estado_para_bytes(self.cubo_inicial): []}
+        visitados_ida = {self._estado_para_bytes(cubo_normalizado): []}
         visitados_volta = {self._estado_para_bytes(cubo_alvo): []}
 
-        # O God's Number do 2x2 é 11 HTM. Se cada lado explorar até profundidade 6,
-        # cruzam-se garantidamente a meio.
         limite_profundidade = 6
 
         while q_ida and q_volta:
             # ---------------------------------------------------------
-            # FASE 1: Expansão da Ida (A partir do Scramble)
+            # FASE 1: Expansão da Ida
             # ---------------------------------------------------------
             cubo_atual, caminho_ida = q_ida.popleft()
 
@@ -91,17 +146,17 @@ class Solver2x2:
                     novo_caminho = caminho_ida + [mov]
                     estado_bytes = self._estado_para_bytes(novo_cubo)
 
-                    # Intersecção encontrada!
                     if estado_bytes in visitados_volta:
                         caminho_volta_invertido = [self.inversos[m] for m in reversed(visitados_volta[estado_bytes])]
-                        return novo_caminho + caminho_volta_invertido
+                        solucao_bruta = novo_caminho + caminho_volta_invertido
+                        return self._transpor_solucao(solucao_bruta, rotacoes_iniciais)
 
                     if estado_bytes not in visitados_ida:
                         visitados_ida[estado_bytes] = novo_caminho
                         q_ida.append((novo_cubo, novo_caminho))
 
             # ---------------------------------------------------------
-            # FASE 2: Expansão da Volta (A partir da Solução)
+            # FASE 2: Expansão da Volta
             # ---------------------------------------------------------
             cubo_atual_volta, caminho_volta = q_volta.popleft()
 
@@ -116,10 +171,10 @@ class Solver2x2:
                     novo_caminho_v = caminho_volta + [mov]
                     estado_bytes_v = self._estado_para_bytes(novo_cubo_v)
 
-                    # Intersecção encontrada!
                     if estado_bytes_v in visitados_ida:
                         caminho_volta_invertido = [self.inversos[m] for m in reversed(novo_caminho_v)]
-                        return visitados_ida[estado_bytes_v] + caminho_volta_invertido
+                        solucao_bruta = visitados_ida[estado_bytes_v] + caminho_volta_invertido
+                        return self._transpor_solucao(solucao_bruta, rotacoes_iniciais)
 
                     if estado_bytes_v not in visitados_volta:
                         visitados_volta[estado_bytes_v] = novo_caminho_v
@@ -135,19 +190,19 @@ if __name__ == "__main__":
     print("A inicializar o cubo 2x2...")
     meu_cubo = Cubo(2)
 
-    scramble = "U R2 F U' R' U' R2 U' F U F"
+    scramble = "U2 F2 L' F D' R F' D' B D2 F' D L U L U' L2 F' U2 F"
     print(f"A aplicar scramble: {scramble}")
 
     for movimento in scramble.split():
         meu_cubo.aplicar_comando(movimento)
 
-    print("A procurar a solução ótima com BFS Bidirecional...")
+    print("A procurar a solução ótima com BFS Bidirecional e normalização de eixos...")
 
     solver = Solver2x2(meu_cubo)
     solucao = solver.resolver()
 
     if solucao is not None:
         print(f"Cubo resolvido em {len(solucao)} movimentos ótimos!")
-        print(f"Solução HTM: {' '.join(solucao)}")
+        print(f"Solução HTM transcrita para o referencial original: {' '.join(solucao)}")
     else:
         print("Não foi possível encontrar uma solução.")

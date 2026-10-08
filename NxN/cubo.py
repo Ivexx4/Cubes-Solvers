@@ -24,9 +24,16 @@ class Cubo:
 
     def _rodar_camada_especifica(self, face, vezes, d):
         N = self.N
+        opostos = {'U': 'D', 'D': 'U', 'F': 'B', 'B': 'F', 'R': 'L', 'L': 'R'}
+
         for _ in range(vezes):
             if d == 0:
                 self._girar_matriz(face)
+
+            # CORREÇÃO: Gira a matriz da face oposta no sentido inverso se a camada a rodar lhe tocar
+            if d == N - 1:
+                face_oposta = opostos[face]
+                self.faces[face_oposta] = np.rot90(self.faces[face_oposta], k=1)
 
             # Manipulação otimizada de vetores (slicing)
             if face == 'U':
