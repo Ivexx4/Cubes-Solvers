@@ -1,6 +1,6 @@
 # Solvers Speedcubing
 
-Aplicação JavaFX para representar cubos de Rubik, aplicar sequências de movimentos e obter soluções para cubos 2×2, 3×3, 4×4 e 5×5.
+Aplicação JavaFX com representação 3D interativa de cubos de Rubik, para aplicar sequências de movimentos e obter soluções para cubos 2×2, 3×3, 4×4 e 5×5.
 
 ## Requisitos
 
@@ -17,7 +17,7 @@ Na pasta do projeto:
 mvn javafx:run
 ```
 
-A aplicação abre com um cubo 3×3 baralhado. Escolha o tamanho, introduza uma sequência ou use os botões de movimentos, e selecione **Find solution** para calcular uma solução. A solução é colocada no campo de sequência; prima **Execute** para a aplicar ao cubo.
+A aplicação abre com um cubo 3×3 baralhado. Arraste o cubo com o botão esquerdo do rato para rodar a vista. Escolha o tamanho, introduza uma sequência ou use os botões de movimentos; ao executar, cada movimento roda a camada correspondente em sequência. Selecione **Find solution** para calcular uma solução. A solução é colocada no campo de sequência; prima **Execute** para a aplicar ao cubo.
 
 O seletor permite representar cubos de 2×2 até 11×11. A resolução automática está atualmente disponível apenas para 2×2 a 5×5; os restantes tamanhos podem ser visualizados e manipulados, mas não resolvidos pela aplicação.
 
@@ -72,19 +72,7 @@ src/test/java/                Testes do modelo e dos solvers
 LICENSES/                     Licenças e avisos das implementações
 ```
 
-### Módulos principais
-
-- `pt.cubesolvers.model` — estado do cubo, validação de movimentos e serialização do estado interno.
-- `pt.cubesolvers.solver` — adaptadores para 2×2, 3×3, 4×4 e 5×5, com validação da dimensão e normalização dos dados para cada solver.
-- `pt.cubesolvers.ui` — aplicação JavaFX, botões de movimento, embaralhamento e resolução automática.
-- `cs.*` — motores algorítmicos externos ou adaptados para cada tipo de cubo.
-
 O modelo `pt.cubesolvers.model.Cube` usa as faces na ordem `U, D, F, B, L, R`, representadas internamente pelas cores `0` a `5`. A interface traduz estas cores para as cores visuais do cubo.
-
-Para mais detalhes sobre os módulos internos, consulte:
-
-- `src/main/java/pt/cubesolvers/README.md`
-- `src/main/java/cs/README.md`
 
 ## Testes e compilação
 
