@@ -204,7 +204,7 @@ if __name__ == "__main__":
     print("A inicializar o cubo 2x2...")
     meu_cubo = Cubo(2)
 
-    scramble = "U2 F2 L' F D' R F' D' B D2 F' D L U L U' L2 F' U2 F"
+    scramble = "F R U' R' U' R U R' F' R U R' U' R' F R F"
     print(f"A aplicar scramble: {scramble}")
 
     for movimento in scramble.split():

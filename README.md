@@ -1,58 +1,139 @@
 # Cube Solvers
 
-Projeto Python para representar cubos de Rubik NxN, aplicar movimentos e
-visualizar/manipular o cubo numa interface gráfica. Inclui também um solver
-por pesquisa bidirecional para cubos 2x2.
+Este repositório reúne implementações de resolutores de cubo de Rubik em Java e em Python, com foco em visualização, manipulação e solução de estados de cubo para diferentes tamanhos.
 
-## Conteúdo
+## Visão geral
 
-- [`2x2/`](2x2/README.md): solver 2x2 baseado em pesquisa em largura.
-- [`3x3/`](3x3/README.md): solver 3x3 pelo algoritmo de duas fases de Kociemba.
-- [`NxN/`](NxN/README.md): modelo do cubo e interface gráfica para NxN.
+O projeto está dividido em duas grandes áreas:
 
-## Requisitos
+- Java: aplicação JavaFX para visualizar cubos, aplicar movimentos e resolver estados de 2×2 a 5×5.
+- Python: modelos e solvers para cubos 2×2, 3×3 e NxN, com foco em manipulação e pesquisa de solução.
 
-- Python 3.
-- NumPy (`numpy`).
-- Tkinter, normalmente incluído nas instalações de Python para desktop.
+## Estrutura do repositório
 
-Instale as dependências a partir da raiz do projeto:
+```text
+Cube_Solvers/
+├── Java/                     # Aplicação JavaFX e solvers 2x2–5x5
+│   ├── README.md             # Documentação da interface Java
+│   ├── pom.xml               # Dependências Maven e configuração do projeto
+│   ├── src/                  # Código-fonte Java
+│   └── LICENSES/             # Licenças das implementações integradas
+├── Python/                   # Solvers e modelo genérico em Python
+│   ├── requirements.txt      # Dependências Python
+│   ├── 2x2/                 # Solver específico para cubos 2×2
+│   ├── 3x3/                 # Solver de duas fases para 3×3
+│   ├── NxN/                 # Modelo genérico do cubo e GUI Tkinter
+│   └── README.md            # Documentação do conjunto Python (se existir)
+├── .venv/                    # Ambiente virtual local
+├── .idea/                    # Configuração do IDE
+└── README.md                 # Esta documentação principal
+```
 
-```powershell
+## Java
+
+A pasta `Java` contém uma aplicação gráfica capaz de:
+
+- representar cubos de vários tamanhos;
+- aplicar sequências de movimentos;
+- embaralhar o cubo;
+- resolver automaticamente estados de 2×2 a 5×5;
+- visualizar e testar algoritmos de resolução.
+
+### Requisitos
+
+- JDK 23
+- Maven 3.8+
+
+### Execução rápida
+
+```bash
+cd Java
+mvn javafx:run
+```
+
+Para mais detalhes, consulte `Java/README.md`.
+
+## Python
+
+A pasta `Python` contém uma implementação modular para cubos em Python, incluindo:
+
+- modelo genérico `NxN` para aplicar movimentos e representar faces;
+- solver `2x2` com procura bidirecional;
+- solver `3x3` com algoritmo de duas fases;
+- interface Tkinter para manipulação visual do cubo.
+
+### Requisitos
+
+```bash
+cd Python
 py -m pip install -r requirements.txt
 ```
 
-## Executar
+### Execução rápida
 
-Iniciar a interface gráfica (por omissão, 3x3):
-
-```powershell
-py NxN\GUI_plan.py
-```
-
-Executar o exemplo do solver 2x2:
-
-```powershell
+```bash
+cd Python
 py 2x2\solver.py
 ```
 
-Executar o exemplo do solver 3x3:
+ou
 
-```powershell
+```bash
+cd Python
 py 3x3\solver.py
 ```
 
-O solver 2x2 aceita apenas cubos dessa dimensão. A interface gráfica permite
-escolher outra dimensão alterando `TAMANHO_N` no final de `NxN/GUI_plan.py`.
+ou ainda
+
+```bash
+cd Python
+py NxN\GUI_plan.py
+```
+
+Para detalhes específicos, consulte os READMEs de cada subpasta:
+
+- `Python/2x2/README.md`
+- `Python/3x3/README.md`
+- `Python/NxN/README.md`
 
 ## Notação de movimentos
 
-As faces seguem a notação padrão: `U` (cima), `D` (baixo), `F` (frente),
-`B` (trás), `L` (esquerda) e `R` (direita). Sem sufixo, o movimento é horário;
-`'` indica anti-horário e `2` meia-volta. `Rw` roda as duas camadas da direita,
-e um prefixo numérico define a profundidade, por exemplo `3Fw2`.
+Os movimentos usam as faces:
 
-## Estado atual
+- `U`, `D`, `F`, `B`, `L`, `R`
 
-O modelo e a GUI NxN estão em `NxN/`; os solvers específicos estão nas
-pastas `2x2/` e `3x3/`.
+As convenções comuns são:
+
+- `'` → quarto de volta no sentido inverso
+- `2` → meia volta
+- `w` → rotações de duas camadas
+- prefixo numérico (por exemplo `3Rw`) → profundidade da camada
+
+## Objetivo do projeto
+
+O conjunto foi concebido para demonstrar e testar diferentes abordagens para a resolução de cubos de Rubik, comparando:
+
+- métodos algorítmicos em Python;
+- implementações JavaFX para visualização interativa;
+- soluções baseadas em busca, normalização e redução de estados.
+
+## Documentação complementar
+
+Cada módulo inclui a sua própria documentação específica:
+
+- `Java/README.md`
+- `Java/src/main/java/pt/cubesolvers/README.md`
+- `Java/src/main/java/cs/README.md`
+- `Python/README.md`
+- `Python/2x2/README.md`
+- `Python/3x3/README.md`
+- `Python/NxN/README.md`
+
+Além disso, os módulos internos foram descritos com foco em:
+
+- objetivo funcional;
+- papel de cada pacote/classe principal;
+- integração entre a camada de visualização e os motores de resolução;
+- limites e requisitos específicos de cada algoritmo.
+
+Se quiser, também posso criar uma documentação adicional em formato de guia de utilização, arquitetura de código ou lista de funcionalidades por módulo.
