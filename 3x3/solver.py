@@ -2,14 +2,15 @@
 
 import os
 import sys
+from math import isfinite
 
 try:
-    import kociemba
+    from twophase import solve as resolver_duas_fases
 except ModuleNotFoundError as error:
-    if error.name != "kociemba":
+    if error.name != "twophase":
         raise
     raise ImportError(
-        "A dependência kociemba não está instalada. "
+        "A dependência twophase não está instalada. "
         "Execute: py -m pip install -r requirements.txt"
     ) from error
 
@@ -24,11 +25,22 @@ from cubo import Cubo
 class Solver3x3:
     """Resolve um cubo 3x3 representado pela classe ``Cubo``."""
 
-    def __init__(self, cubo):
-        """Inicializa o solver com um cubo de dimensão 3."""
+    def __init__(self, cubo, max_length=22, timeout=30.0):
+        """Inicializa o solver com limites máximos para comprimento e pesquisa."""
         if cubo.N != 3:
             raise ValueError("Este solver suporta apenas cubos 3x3.")
+        if not isinstance(max_length, int) or isinstance(max_length, bool) or max_length < 1:
+            raise ValueError("max_length deve ser pelo menos 1.")
+        if (
+            not isinstance(timeout, (int, float))
+            or isinstance(timeout, bool)
+            or not isfinite(timeout)
+            or timeout <= 0
+        ):
+            raise ValueError("timeout deve ser maior que zero.")
         self.cubo = cubo
+        self.max_length = max_length
+        self.timeout = timeout
 
     def _para_facelets(self):
         """Converte as matrizes de faces para a notação URFDLB de Kociemba."""
@@ -60,13 +72,18 @@ class Solver3x3:
         """Devolve uma solução como lista de movimentos na notação padrão.
 
         Uma lista vazia indica que o cubo já está resolvido. Estados com
-        combinações de peças fisicamente impossíveis são rejeitados por Kociemba.
+        combinações de peças fisicamente impossíveis são rejeitados pelo parser.
         """
+        facelets = self._para_facelets()
         if self.cubo.resolvido():
             return []
 
-        facelets = self._para_facelets()
-        return kociemba.solve(facelets).split()
+        solucao = resolver_duas_fases(
+            facelets,
+            max_length=self.max_length,
+            timeout=self.timeout,
+        )
+        return None if solucao is None else solucao.split()
 
 
 if __name__ == "__main__":
@@ -77,4 +94,7 @@ if __name__ == "__main__":
 
     print(f"Scramble: {scramble}")
     solucao = Solver3x3(cubo).resolver()
-    print(f"Solução ({len(solucao)} movimentos): {' '.join(solucao)}")
+    if solucao is None:
+        print("Não foi encontrada solução dentro dos limites configurados.")
+    else:
+        print(f"Solução ({len(solucao)} movimentos): {' '.join(solucao)}")

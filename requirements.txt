@@ -1,2 +1,2 @@
 numpy
-kociemba>=1.2.1
+twophase @ git+https://github.com/tcbegley/cube-solver.git@a95c8275e19ef7ac22793bb4610d85af955a66eb
