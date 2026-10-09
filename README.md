@@ -1,13 +1,32 @@
 # Cube Solvers
 
-Este repositório reúne implementações de resolutores de cubo de Rubik em Java e em Python, com foco em visualização, manipulação e solução de estados de cubo para diferentes tamanhos.
+Este repositório tem como objetivo final suportar todos os puzzles reconhecidos pela WCA, com foco em uma implementação principal em Java, mais robusta e performante do que a versão Python inicial.
 
 ## Visão geral
 
 O projeto está dividido em duas grandes áreas:
 
-- Java: aplicação JavaFX para visualizar cubos, aplicar movimentos e resolver estados de 2×2 a 5×5.
-- Python: modelos e solvers para cubos 2×2, 3×3 e NxN, com foco em manipulação e pesquisa de solução.
+- Java: implementação principal e ativa, com aplicação JavaFX para visualizar cubos, aplicar movimentos e resolver estados de 2×2 a 5×5, com caminho claro para expansão para outros puzzles da WCA.
+- Python: código legado, antigo e abandonado. Foi mantido apenas como referência histórica e de investigação, mas não deve ser usado como base de desenvolvimento futuro devido a problemas de performance e de arquitetura.
+
+## Objetivo final
+
+O objetivo principal do projeto é cobrir o conjunto de puzzles da WCA, incluindo os formatos clássicos e mais comuns, como:
+
+- 2×2×2
+- 3×3×3
+- 4×4×4
+- 5×5×5
+- 6×6×6
+- 7×7×7
+- Clock
+- Megaminx
+- Pyraminx
+- Skewb
+- Square-1
+- variantes de resolução e visualização associadas
+
+A implementação Java é a base ativa para este objetivo, e a versão Python deve ser tratada como material legado e não como motor de desenvolvimento futuro.
 
 ## Estrutura do repositório
 
@@ -24,6 +43,10 @@ Cube_Solvers/
 │   ├── 3x3/                 # Solver de duas fases para 3×3
 │   ├── NxN/                 # Modelo genérico do cubo e GUI Tkinter
 │   └── README.md            # Documentação do conjunto Python (se existir)
+├── docs/                     # Documentação técnica avançada
+│   ├── ARCHITECTURE.md       # arquitetura do repositório
+│   ├── CONTRIBUTING.md       # guia de contribuição
+│   └── API.md               # resumo da API pública
 ├── .venv/                    # Ambiente virtual local
 ├── .idea/                    # Configuração do IDE
 └── README.md                 # Esta documentação principal
@@ -128,6 +151,10 @@ Cada módulo inclui a sua própria documentação específica:
 - `Python/2x2/README.md`
 - `Python/3x3/README.md`
 - `Python/NxN/README.md`
+- `docs/ARCHITECTURE.md`
+- `docs/WCA_ROADMAP.md`
+- `docs/CONTRIBUTING.md`
+- `docs/API.md`
 
 Além disso, os módulos internos foram descritos com foco em:
 
