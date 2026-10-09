@@ -88,7 +88,7 @@ class Solver3x3:
 
 if __name__ == "__main__":
     cubo = Cubo(3)
-    scramble = "R U R' U' F2"
+    scramble = "U2 R2 D2 B2 L'R2 D2 R2 U' L' D U2 B' D' B' F' L' F U2 R' F' D' L2 B2 U2 F' D' L2 B2 U' L2 F' D' R2 F2 L2 D' R2 F B2 U' L2 F' D' R2 F2 L2 D' R2 F B2 U' L2 F' D' R2 F2 L2 D' R2 F B2 U' L2 F' D' R2 F2 L2 D' R2 F B2 U' L2 F' D' R2 F2 L2 D' R2 F B2 U' L2 F' D' R2 F2 L2 D' R2 F B"
     for movimento in scramble.split():
         cubo.aplicar_comando(movimento)
 
